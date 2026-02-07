@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apk Nevers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            color: white;
+            background: #0a0a0a;
+        }
+
+        #background-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        #entry-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 0.8s ease;
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 30px;
+            backdrop-filter: blur(25px);
+            padding: 40px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            animation: containerFade 1.5s ease;
+        }
+
+        @keyframes containerFade {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .gambar-container img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 4px solid #00dbde;
+            padding: 5px;
+            transition: 0.5s;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin: 20px 0 5px;
+            background: linear-gradient(to right, #00dbde, #fc00ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+        }
+
+        p.subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 35px;
+            font-size: 0.75rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 16px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-primary { background: linear-gradient(90deg, #00dbde, #23a6d5); }
+        .btn-dev { background: linear-gradient(90deg, #8e44ad, #fc00ff); }
+
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            to { transform: scale(4); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="entry-overlay" onclick="startApp()">
+        <p style="letter-spacing: 5px; font-size: 0.7rem; color: #00dbde;">TAP TO ENTER</p>
+    </div>
+
+    <audio id="bg-audio" loop>
+        <source src="https://files.catbox.moe/ar8vfu.mp3" type="audio/mpeg">
+    </audio>
+
+    <canvas id="background-canvas"></canvas>
+    
+    <div class="main-content">
+        <div class="container">
+            <div class="gambar-container">
+                <img src="ff.jpg" alt="Profile" onerror="this.src='https://ui-avatars.com/api/?name=Nevers&background=00dbde&color=fff'">
+            </div>
+            <h1>Apk Nevers</h1>
+            <p class="subtitle">FIXED BY agaas C7bx4</p>
+            
+            <div class="buttons-container">
+                <a href="https://ditzzzgamonnn123-create.github.io/Bt/" class="btn btn-primary">Beranda</a>
+                <a href="https://sociabuzz.com/agaas_reall" class="btn btn-dev">Developer</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const audio = document.getElementById('bg-audio');
+        const overlay = document.getElementById('entry-overlay');
+
+        function startApp() {
+            audio.play().catch(() => {});
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.style.display = 'none', 800);
+        }
+
+        const canvas = document.getElementById('background-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const connectionDistance = 150;
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = [];
+            const count = Math.floor((canvas.width * canvas.height) / 9000);
+            for(let i=0; i<count; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 1,
+                    speedX: (Math.random() - 0.5) * 0.8,
+                    speedY: (Math.random() - 0.5) * 0.8
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for(let i=0; i<particles.length; i++) {
+                let p = particles[i];
+                ctx.fillStyle = 'rgba(0, 219, 222, 0.8)';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                for(let j=i+1; j<particles.length; j++) {
+                    let p2 = particles[j];
+                    let dx = p.x - p2.x;
+                    let dy = p.y - p2.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+
+                    if(dist < connectionDistance) {
+                        ctx.strokeStyle = `rgba(252, 0, 255, ${1 - dist/connectionDistance})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+
+                p.x += p.speedX;
+                p.y += p.speedY;
+
+                if(p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+                if(p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+            }
+            requestAnimationFrame(draw);
+        }
+
+        init();
+        draw();
+        window.onresize = init;
+
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                let rect = this.getBoundingClientRect();
+                let x = e.clientX - rect.left;
+                let y = e.clientY - rect.top;
+                let ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+    </script>
+</body>
+</html>
